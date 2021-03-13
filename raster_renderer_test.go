@@ -23,6 +23,7 @@ func TestRasterRenderer_Render(t *testing.T) {
 		name       string
 		benchmarks []parse.Benchmark
 		renderType RasterRenderType
+		dimension  RenderDimension
 
 		rendererTitle string
 
@@ -34,10 +35,11 @@ func TestRasterRenderer_Render(t *testing.T) {
 		wantRenderTitle      string
 		wantRenderHeight     int
 		wantRenderBarWidth   int
+		wantDimension        RenderDimension
 		wantRenderBenchmarks []parse.Benchmark
 	}{
 		{
-			name:                 "Single Benchmark",
+			name:                 "single benchmark",
 			rendererTitle:        "RasterRendererTitle",
 			benchmarks:           []parse.Benchmark{benchmark},
 			wantRenderCalled:     true,
@@ -47,11 +49,11 @@ func TestRasterRenderer_Render(t *testing.T) {
 			wantRenderBenchmarks: []parse.Benchmark{benchmark},
 		},
 		{
-			name:      "No Benchmarks",
+			name:      "no benchmarks",
 			wantError: ErrNoBenchmarksProvided,
 		},
 		{
-			name:                 "No Renderer Title Chooses Benchmark Title",
+			name:                 "no renderer title chooses benchmark title",
 			benchmarks:           []parse.Benchmark{benchmark},
 			wantRenderCalled:     true,
 			wantRenderTitle:      "ParentBenchmark",
@@ -60,7 +62,7 @@ func TestRasterRenderer_Render(t *testing.T) {
 			wantRenderBenchmarks: []parse.Benchmark{benchmark},
 		},
 		{
-			name:                 "Bar Chart Rendering Error",
+			name:                 "bar chart rendering error",
 			benchmarks:           []parse.Benchmark{benchmark},
 			barChartRenderErr:    barChartRenderErr,
 			wantError:            barChartRenderErr,
@@ -71,7 +73,7 @@ func TestRasterRenderer_Render(t *testing.T) {
 			wantRenderBenchmarks: []parse.Benchmark{benchmark},
 		},
 		{
-			name:                 "Render SVG",
+			name:                 "render svg",
 			rendererTitle:        "RasterRendererTitle",
 			benchmarks:           []parse.Benchmark{benchmark},
 			renderType:           SVG,
@@ -82,7 +84,7 @@ func TestRasterRenderer_Render(t *testing.T) {
 			wantRenderBenchmarks: []parse.Benchmark{benchmark},
 		},
 		{
-			name:                 "Unknown Render Type",
+			name:                 "unknown render type",
 			rendererTitle:        "RasterRendererTitle",
 			benchmarks:           []parse.Benchmark{benchmark},
 			renderType:           RasterRenderType(100),
@@ -91,6 +93,34 @@ func TestRasterRenderer_Render(t *testing.T) {
 			wantRenderTitle:      "RasterRendererTitle",
 			wantRenderHeight:     512,
 			wantRenderBarWidth:   60,
+			wantRenderBenchmarks: []parse.Benchmark{benchmark},
+		},
+		{
+			name:                 "bytes per op dimension",
+			rendererTitle:        "RasterRendererTitle",
+			benchmarks:           []parse.Benchmark{benchmark},
+			dimension:            RenderBytesPerOp,
+			renderType:           RasterRenderType(100),
+			wantError:            ErrUnknownRasterRenderType,
+			wantRenderCalled:     true,
+			wantRenderTitle:      "RasterRendererTitle",
+			wantRenderHeight:     512,
+			wantRenderBarWidth:   60,
+			wantDimension:        RenderBytesPerOp,
+			wantRenderBenchmarks: []parse.Benchmark{benchmark},
+		},
+		{
+			name:                 "allocs per op dimension",
+			rendererTitle:        "RasterRendererTitle",
+			benchmarks:           []parse.Benchmark{benchmark},
+			dimension:            RenderAllocsPerOp,
+			renderType:           RasterRenderType(100),
+			wantError:            ErrUnknownRasterRenderType,
+			wantRenderCalled:     true,
+			wantRenderTitle:      "RasterRendererTitle",
+			wantRenderHeight:     512,
+			wantRenderBarWidth:   60,
+			wantDimension:        RenderAllocsPerOp,
 			wantRenderBenchmarks: []parse.Benchmark{benchmark},
 		},
 	}
@@ -104,7 +134,7 @@ func TestRasterRenderer_Render(t *testing.T) {
 			fakeBarRenderer.replyWithError = test.barChartRenderErr
 			rasterRenderer.barChartRenderFunc = fakeBarRenderer.fakeRenderGraphicalBarChart
 
-			err := rasterRenderer.Render(buf, "ParentBenchmark", test.benchmarks)
+			err := rasterRenderer.Render(buf, "ParentBenchmark", test.dimension, test.benchmarks)
 			if err != nil {
 				if !errors.Is(err, test.wantError) {
 					t.Errorf("Want error '%v', got error '%v'", test.wantError, err)
@@ -127,6 +157,10 @@ func TestRasterRenderer_Render(t *testing.T) {
 				t.Errorf("Want render bar width %d, got render bar width %d", test.wantRenderBarWidth, fakeBarRenderer.barWidth)
 			}
 
+			if test.wantDimension != fakeBarRenderer.dimension {
+				t.Errorf("Want render dimension %q, got render dimension %q", test.wantDimension, fakeBarRenderer.dimension)
+			}
+
 			if !reflect.DeepEqual(test.wantRenderBenchmarks, fakeBarRenderer.benchmarks) {
 				t.Errorf("Want render benchmarks %v, got render benchmarks %v", test.wantRenderBenchmarks, fakeBarRenderer.benchmarks)
 			}
@@ -134,9 +168,9 @@ func TestRasterRenderer_Render(t *testing.T) {
 	}
 }
 
-// ===== fakeBarChartRenderer =====
+// ===== fakeBarChartBenchmarkRenderer =====
 
-type fakeBarChartRenderer struct {
+type fakeBarChartBenchmarkRenderer struct {
 	replyWithChart *chart.BarChart
 	replyWithError error
 
@@ -144,11 +178,12 @@ type fakeBarChartRenderer struct {
 	title      string
 	height     int
 	barWidth   int
+	dimension  RenderDimension
 	benchmarks []parse.Benchmark
 }
 
-func newDefaultFakeBarChartRenderer() fakeBarChartRenderer {
-	return fakeBarChartRenderer{
+func newDefaultFakeBarChartRenderer() fakeBarChartBenchmarkRenderer {
+	return fakeBarChartBenchmarkRenderer{
 		replyWithChart: &chart.BarChart{
 			Bars: []chart.Value{
 				{Value: 1.0, Label: "A"},
@@ -158,11 +193,12 @@ func newDefaultFakeBarChartRenderer() fakeBarChartRenderer {
 	}
 }
 
-func (f *fakeBarChartRenderer) fakeRenderGraphicalBarChart(title string, height int, barWidth int, benchmarks []parse.Benchmark) (*chart.BarChart, error) {
+func (f *fakeBarChartBenchmarkRenderer) fakeRenderGraphicalBarChart(title string, height int, barWidth int, dimension RenderDimension, benchmarks []parse.Benchmark) (*chart.BarChart, error) {
 	f.called = true
 	f.title = title
 	f.height = height
 	f.barWidth = barWidth
+	f.dimension = dimension
 	f.benchmarks = benchmarks
 	return f.replyWithChart, f.replyWithError
 }

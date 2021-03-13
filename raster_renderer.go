@@ -33,7 +33,7 @@ type RasterRenderer struct {
 	RenderType RasterRenderType
 
 	// barChartRenderFunc is used to isolate unit testing - in non-testing usage, points to `renderGraphicalBarChart`.
-	barChartRenderFunc barChartRenderer
+	barChartRenderFunc barChartBenchmarkRenderer
 }
 
 func NewRasterRenderer(title string, renderType RasterRenderType) *RasterRenderer {
@@ -46,7 +46,7 @@ func NewRasterRenderer(title string, renderType RasterRenderType) *RasterRendere
 	}
 }
 
-func (r *RasterRenderer) Render(writer io.Writer, parentBenchmark string, benchmarks []parse.Benchmark) error {
+func (r *RasterRenderer) Render(writer io.Writer, parentBenchmark string, renderDimension RenderDimension, benchmarks []parse.Benchmark) error {
 
 	if len(benchmarks) == 0 {
 		return ErrNoBenchmarksProvided
@@ -57,7 +57,7 @@ func (r *RasterRenderer) Render(writer io.Writer, parentBenchmark string, benchm
 		title = parentBenchmark
 	}
 
-	graph, err := r.barChartRenderFunc(title, r.Height, r.BarWidth, benchmarks)
+	graph, err := r.barChartRenderFunc(title, r.Height, r.BarWidth, renderDimension, benchmarks)
 	if err != nil {
 		return err
 	}

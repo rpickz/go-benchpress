@@ -35,7 +35,7 @@ func writeBenchmarks(name string, benchmarks []parse.Benchmark) {
 	}
 	defer file.Close()
 
-	err = renderer.Render(file, name, benchmarks)
+	err = renderer.Render(file, name, benchpress.RenderNsPerOp, benchmarks)
 	if err != nil {
 		log.Fatalf("Could not output chart - error: %v", err)
 	}

@@ -1,18 +1,23 @@
 package benchpress
 
 import (
-	"errors"
+	"fmt"
 	"github.com/wcharczuk/go-chart"
 	"golang.org/x/tools/benchmark/parse"
 	"strings"
 )
 
-type barChartRenderer func(title string, height, barWidth int, benchmarks []parse.Benchmark) (*chart.BarChart, error)
+type barChartBenchmarkRenderer func(title string, height, barWidth int, dimension RenderDimension, benchmarks []parse.Benchmark) (*chart.BarChart, error)
 
-func renderGraphicalBarChart(title string, height int, barWidth int, benchmarks []parse.Benchmark) (*chart.BarChart, error) {
+type barChartRenderer func(title string, height, barWidth int, dimension RenderDimension, values []chart.Value) *chart.BarChart
+
+// Defined for testing purposes - to isolate testing of the renderer and the construction of go-chart Bar charts.
+var _renderBarChart barChartRenderer = renderBarChart
+
+func renderGraphicalBarChart(title string, height int, barWidth int, dimension RenderDimension, benchmarks []parse.Benchmark) (*chart.BarChart, error) {
 
 	if len(benchmarks) == 0 {
-		return nil, errors.New("could not render benchmarks - no benchmarks provided")
+		return nil, ErrNoBenchmarksProvided
 	}
 
 	values := make([]chart.Value, 0)
@@ -21,30 +26,45 @@ func renderGraphicalBarChart(title string, height int, barWidth int, benchmarks 
 		name := benchmark.Name
 
 		parts := strings.Split(name, "/")
-		if len(parts) < 2 {
-			continue
+
+		name = parts[0]
+		if len(parts) > 1 {
+			name = strings.Join(parts[1:], "/")
 		}
 
-		name = parts[1]
+		var value float64
+		switch dimension {
+		case RenderNsPerOp:
+			value = benchmark.NsPerOp
+		case RenderBytesPerOp:
+			value = float64(benchmark.AllocedBytesPerOp)
+		case RenderAllocsPerOp:
+			value = float64(benchmark.AllocsPerOp)
+		default:
+			return nil, fmt.Errorf("render dimension type %q not supported: %w", dimension, ErrUnknownDimensionType)
+		}
 
 		values = append(values, chart.Value{
-			Style: chart.Style {
-				Show: true,
-			},
+			Style: chart.StyleShow(),
 			Label: name,
-			Value: benchmark.NsPerOp,
+			Value: value,
 		})
 	}
 
-	graph := chart.BarChart{
-		Title: title,
-		TitleStyle: chart.Style{Show: true},
+	graph := _renderBarChart(title, height, barWidth, dimension, values)
 
+	return graph, nil
+}
+
+func renderBarChart(title string, height, barWidth int, dimension RenderDimension, values []chart.Value) *chart.BarChart {
+	return &chart.BarChart{
+		Title:      title,
+		TitleStyle: chart.Style{Show: true},
 		XAxis: chart.Style{
 			Show: true,
 		},
 		YAxis: chart.YAxis{
-			Name: "Ns Per Op",
+			Name: dimension.String(),
 			Style: chart.Style{
 				Show: true,
 			},
@@ -56,8 +76,6 @@ func renderGraphicalBarChart(title string, height int, barWidth int, benchmarks 
 		},
 		Height:   height,
 		BarWidth: barWidth,
-		Bars: values,
+		Bars:     values,
 	}
-
-	return &graph, nil
 }
