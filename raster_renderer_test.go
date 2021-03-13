@@ -9,6 +9,40 @@ import (
 	"testing"
 )
 
+func TestRasterRenderType_String(t *testing.T) {
+	tests := []struct {
+		name string
+		input RasterRenderType
+		want string
+	}{
+		{
+			name: "png",
+			input: PNG,
+			want: "PNG",
+		},
+		{
+			name: "svg",
+			input: SVG,
+			want: "SVG",
+		},
+		{
+			name: "svg",
+			input: RasterRenderType(1000),
+			want: "Unknown (1000)",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := test.input.String()
+			if test.want != got {
+				t.Errorf("want %q, got %q", test.want, got)
+			}
+		})
+	}
+}
+
+// ===== RasterRenderer tests =====
+
 func TestRasterRenderer_Render(t *testing.T) {
 	benchmark := parse.Benchmark{
 		Name:     "Benchmark1",

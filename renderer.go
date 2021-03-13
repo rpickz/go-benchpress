@@ -27,6 +27,18 @@ func (r RenderDimension) String() string {
 	}
 }
 
+func RenderDimensionFromString(str string) (RenderDimension, error) {
+	switch str {
+	case "NS_PER_OP":
+		return RenderNsPerOp, nil
+	case "BYTES_PER_OP":
+		return RenderBytesPerOp, nil
+	case "ALLOCS_PER_OP":
+		return RenderAllocsPerOp, nil
+	}
+	return -1, fmt.Errorf("render dimension %q not supported: %w", str, ErrUnknownDimensionType)
+}
+
 type Renderer interface {
 	Render(writer io.Writer, parentBenchmark string, dimension RenderDimension, benchmarks []parse.Benchmark) error
 }
