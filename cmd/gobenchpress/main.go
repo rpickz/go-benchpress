@@ -1,14 +1,10 @@
 package main
 
 import (
-	"bytes"
-	"github.com/wcharczuk/go-chart"
 	"go-benchpress/m/v2"
 	"golang.org/x/tools/benchmark/parse"
-	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 )
 
 func main() {
@@ -24,64 +20,23 @@ func main() {
 		log.Fatalf("Could not read benchmarks from input - error: %v", err)
 	}
 
-	for i, benchmarks := range separatedBenchmarks {
-		err = chartBenchmarks(benchmarks, i+".png")
-		if err != nil {
-			log.Fatalf("Could not output chart - error: %v", err)
-		}
+	for name, benchmarks := range separatedBenchmarks {
+		writeBenchmarks(name, benchmarks)
 	}
 }
 
-func chartBenchmarks(benchmarks []parse.Benchmark, outputFile string) error {
+func writeBenchmarks(name string, benchmarks []parse.Benchmark) {
 
-	values := make([]chart.Value, 0)
+	renderer := benchpress.NewRasterRenderer(name)
 
-	for _, benchmark := range benchmarks {
-		name := benchmark.Name
-
-		parts := strings.Split(name, "/")
-		if len(parts) < 2 {
-			continue
-		}
-
-		name = parts[1]
-
-		values = append(values, chart.Value{
-			Style: chart.Style {
-				Show: true,
-			},
-			Label: name,
-			Value: benchmark.NsPerOp,
-		})
-	}
-
-	graph := chart.BarChart{
-		Title: "Test Bar Chart",
-		XAxis: chart.Style{
-			Show: true,
-		},
-		YAxis: chart.YAxis{
-			Name: "SomethingY",
-			Style: chart.Style{
-				Show: true,
-			},
-		},
-
-		Background: chart.Style{
-			Padding: chart.Box{
-				Top: 40,
-			},
-		},
-		Height:   512,
-		BarWidth: 60,
-		Bars: values,
-	}
-
-	var buf bytes.Buffer
-	err := graph.Render(chart.PNG, &buf)
+	file, err := os.Create(name + ".png")
 	if err != nil {
-		return err
+		log.Fatalf("Could not open file for writing - error: %v", err)
 	}
+	defer file.Close()
 
-	return ioutil.WriteFile(outputFile, buf.Bytes(), 0777)
+	err = renderer.Render(file, benchmarks)
+	if err != nil {
+		log.Fatalf("Could not output chart - error: %v", err)
+	}
 }

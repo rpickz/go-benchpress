@@ -28,9 +28,12 @@ func readBenchmarks(reader io.Reader) ([]parse.Benchmark, error) {
 	return results, scanner.Err()
 }
 
+// BenchmarkSets represents a number of benchmarks, grouped by the parent benchmark.
+type BenchmarkSets map[string][]parse.Benchmark
+
 // ReadAndSeparateBenchmarks reads benchmarks from the provided reader, and groups them by benchmark name
 // (which is split from sub-benchmark names).  If the operation did not succeed, an error is returned.
-func ReadAndSeparateBenchmarks(reader io.Reader) (map[string][]parse.Benchmark, error) {
+func ReadAndSeparateBenchmarks(reader io.Reader) (BenchmarkSets, error) {
 	benchmarks, err := readBenchmarks(reader)
 	if err != nil {
 		return nil, err

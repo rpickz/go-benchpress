@@ -110,12 +110,12 @@ func TestReadAndSeparateBenchmarks(t *testing.T) {
 	tests := []struct {
 		name  string
 		input io.Reader
-		want  map[string][]parse.Benchmark
+		want  BenchmarkSets
 	}{
 		{
 			name:  "SingleLine",
 			input: strings.NewReader("BenchmarkSomething/SubBenchmark-12   	   10000	     10000 ns/op"),
-			want: map[string][]parse.Benchmark{
+			want: BenchmarkSets{
 				"BenchmarkSomething": {
 					{
 						Name:     "BenchmarkSomething/SubBenchmark-12",
@@ -131,7 +131,7 @@ func TestReadAndSeparateBenchmarks(t *testing.T) {
 			input: strings.NewReader(`BenchmarkSomething/SubBenchmark1-12   	   10000	     10000 ns/op
 BenchmarkSomething/SubBenchmark2-12   	   10000	     10000 ns/op
 BenchmarkSomething2/SubBenchmark3-12   	   10000	     10000 ns/op`),
-			want: map[string][]parse.Benchmark{
+			want: BenchmarkSets{
 				"BenchmarkSomething": {
 					{
 						Name:     "BenchmarkSomething/SubBenchmark1-12",
@@ -171,7 +171,7 @@ BenchmarkSomething2/SubBenchmark3-12   	   10000	     10000 ns/op`),
 	}
 }
 
-var separatedBenchmarksRead map[string][]parse.Benchmark
+var separatedBenchmarksRead BenchmarkSets
 
 func BenchmarkReadAndSeparateBenchmarks(b *testing.B) {
 	benchmarks := []struct {
