@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"go-benchpress/m/v2"
+	"github.com/rpickz/go-benchpress"
 	"golang.org/x/tools/benchmark/parse"
 	"io"
 	"log"
@@ -29,12 +29,12 @@ func main() {
 		reader = file
 	}
 
-	separatedBenchmarks, err := benchpress.ReadAndSeparateBenchmarks(reader)
+	separatedBenchmarks, err := go_benchpress.ReadAndSeparateBenchmarks(reader)
 	if err != nil {
 		log.Fatalf("Could not read benchmarks from input - error: %v", err)
 	}
 
-	dim, err := benchpress.RenderDimensionFromString(*dimension)
+	dim, err := go_benchpress.RenderDimensionFromString(*dimension)
 	if err != nil {
 		log.Fatalf("Render dimension %q invalid", *dimension)
 	}
@@ -44,14 +44,14 @@ func main() {
 	}
 }
 
-func writeBenchmarks(name string, benchmarks []parse.Benchmark, dimension benchpress.RenderDimension, outputFilename string) {
+func writeBenchmarks(name string, benchmarks []parse.Benchmark, dimension go_benchpress.RenderDimension, outputFilename string) {
 
-	renderType, err := benchpress.RasterRenderTypeFromString(*renderType)
+	renderType, err := go_benchpress.RasterRenderTypeFromString(*renderType)
 	if err != nil {
 		log.Fatalf("Could not determine valid render type - error: %v", err)
 	}
 
-	renderer := benchpress.NewRasterRenderer(name, renderType)
+	renderer := go_benchpress.NewRasterRenderer(name, renderType)
 
 	file, err := os.Create(outputFilename)
 	if err != nil {

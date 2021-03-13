@@ -1,4 +1,4 @@
-module go-benchpress/m/v2
+module github.com/rpickz/go-benchpress
 
 go 1.16
 

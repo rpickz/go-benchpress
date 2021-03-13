@@ -1,4 +1,4 @@
-package benchpress
+package go_benchpress
 
 import (
 	"fmt"

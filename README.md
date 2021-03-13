@@ -10,11 +10,26 @@ Sub-benchmarks are particularly useful for understanding how a particular featur
 Go Benchpress simplifies visualising these benchmark results - designed particularly for sub-benchmarks and demonstrating
 how your code performs at different data-set sizes - visually.
 
+## What Does It Look Like?
+
+This is what a Go Benchpress output looks like:
+
+![Example Output](examples/csvparser/example_output.svg "Example Output")
+
+As you can see, it compares all the results for a single benchmark (across its various sub-benchmarks), displaying
+their relative values visually.
+
+You can choose between several dimensions (including nanoseconds per operation, bytes per operation, etc.) - for
+the most recent advise on this, please consult the help text using:
+```bash
+gobenchpress -help
+```
+
 ## How to Install?
 
 Run the following command at a terminal:
 ```bash
-go get github.com/rpickz/go-benchpress
+go get github.com/rpickz/go-benchpress/cmd/gobenchpress
 ```
 
 ## How to Use?

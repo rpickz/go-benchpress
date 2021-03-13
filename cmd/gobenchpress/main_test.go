@@ -1,7 +1,7 @@
 package main
 
 import (
-	benchpress "go-benchpress/m/v2"
+	"github.com/rpickz/go-benchpress"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -36,7 +36,7 @@ func TestPNGOutput(t *testing.T) {
 	file := setupOutputFile(t)
 	defer file.Close()
 
-	setupRasterRenderType(benchpress.PNG)
+	setupRasterRenderType(go_benchpress.PNG)
 
 	// Call program entry point.
 	main()
@@ -53,7 +53,7 @@ func TestPNGOutput(t *testing.T) {
 	}
 }
 
-func setupRasterRenderType(t benchpress.RasterRenderType) {
+func setupRasterRenderType(t go_benchpress.RasterRenderType) {
 	render := new(string)
 	*render = t.String()
 	renderType = render
