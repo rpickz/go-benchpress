@@ -1,4 +1,4 @@
-package main
+package csvparse
 
 import (
 	"crypto/rand"

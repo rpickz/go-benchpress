@@ -1,4 +1,4 @@
-package main
+package csvparse
 
 import (
 	"regexp"
@@ -20,8 +20,4 @@ func parseCSVLine(input string) []string {
 	// Splice the fields within quotes, with those which are raw comma separated.
 	results := append(matches, strings.Split(modifiedInput, ",")...)
 	return results
-}
-
-func main() {
-
 }
