@@ -21,7 +21,7 @@ func main() {
 	if *input == "STDIN" {
 		reader = os.Stdin
 	} else {
-		file, err := os.Open("./output.txt")
+		file, err := os.Open(*input)
 		if err != nil {
 			log.Fatalf("Could not open output.txt for reading - error: %v", err)
 		}
