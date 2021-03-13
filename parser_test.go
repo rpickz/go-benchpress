@@ -1,6 +1,7 @@
 package benchpress
 
 import (
+	"errors"
 	"golang.org/x/tools/benchmark/parse"
 	"io"
 	"reflect"
@@ -12,12 +13,13 @@ import (
 
 func TestReadBenchmarks(t *testing.T) {
 	tests := []struct {
-		name  string
-		input io.Reader
-		want  []parse.Benchmark
+		name    string
+		input   io.Reader
+		want    []parse.Benchmark
+		wantErr error
 	}{
 		{
-			name:  "SingleLine",
+			name:  "single line",
 			input: strings.NewReader("BenchmarkSomething/SubBenchmark-12   	   10000	     10000 ns/op"),
 			want: []parse.Benchmark{
 				{
@@ -29,7 +31,7 @@ func TestReadBenchmarks(t *testing.T) {
 			},
 		},
 		{
-			name: "MultipleLines",
+			name: "multiple lines",
 			input: strings.NewReader(`BenchmarkSomething/SubBenchmark1-12   	   10000	     10000 ns/op
 BenchmarkSomething/SubBenchmark2-12   	   10000	     10000 ns/op
 BenchmarkSomething/SubBenchmark3-12   	   10000	     10000 ns/op`),
@@ -55,8 +57,13 @@ BenchmarkSomething/SubBenchmark3-12   	   10000	     10000 ns/op`),
 			},
 		},
 		{
-			name:  "SkipsNonBenchmarkLines",
+			name:  "skips non benchmark lines",
 			input: strings.NewReader("this is not a benchmark"),
+		},
+		{
+			name:  "malformed benchmark lines error",
+			input: strings.NewReader("Benchmark$123tlekgjb13rdjasldjv12e;2'"),
+			wantErr: ErrCouldNotParseLine,
 		},
 	}
 
@@ -64,7 +71,9 @@ BenchmarkSomething/SubBenchmark3-12   	   10000	     10000 ns/op`),
 		t.Run(test.name, func(t *testing.T) {
 			benchmarks, err := readBenchmarks(test.input)
 			if err != nil {
-				t.Errorf("Error reading benchmarks - error: %v", err)
+				if !errors.Is(err, test.wantErr) {
+					t.Errorf("Wanted error '%v', got error '%v'", test.wantErr, err)
+				}
 			}
 			if !reflect.DeepEqual(test.want, benchmarks) {
 				t.Errorf("want %v, got %v", test.want, benchmarks)
@@ -81,11 +90,11 @@ func BenchmarkReadBenchmarks(b *testing.B) {
 		input io.Reader
 	}{
 		{
-			name:  "Simple",
+			name:  "single benchmark",
 			input: strings.NewReader("BenchmarkSomething/SubBenchmark-12   	   10000	     10000 ns/op"),
 		},
 		{
-			name: "MultipleLines",
+			name: "multiple lines",
 			input: strings.NewReader(`BenchmarkSomething/SubBenchmark1-12   	   10000	     10000 ns/op
 BenchmarkSomething/SubBenchmark2-12   	   10000	     10000 ns/op
 BenchmarkSomething2/SubBenchmark3-12   	   10000	     10000 ns/op`),
@@ -111,9 +120,10 @@ func TestReadAndSeparateBenchmarks(t *testing.T) {
 		name  string
 		input io.Reader
 		want  BenchmarkSets
+		wantErr error
 	}{
 		{
-			name:  "SingleLine",
+			name:  "single benchmark",
 			input: strings.NewReader("BenchmarkSomething/SubBenchmark-12   	   10000	     10000 ns/op"),
 			want: BenchmarkSets{
 				"BenchmarkSomething": {
@@ -127,7 +137,7 @@ func TestReadAndSeparateBenchmarks(t *testing.T) {
 			},
 		},
 		{
-			name: "MultipleLines",
+			name: "multiple lines",
 			input: strings.NewReader(`BenchmarkSomething/SubBenchmark1-12   	   10000	     10000 ns/op
 BenchmarkSomething/SubBenchmark2-12   	   10000	     10000 ns/op
 BenchmarkSomething2/SubBenchmark3-12   	   10000	     10000 ns/op`),
@@ -156,13 +166,34 @@ BenchmarkSomething2/SubBenchmark3-12   	   10000	     10000 ns/op`),
 				},
 			},
 		},
+		{
+			name:  "malformed benchmark lines error",
+			input: strings.NewReader("Benchmark$123tlekgjb13rdjasldjv12e;2'"),
+			wantErr: ErrCouldNotParseLine,
+		},
+		{
+			name:  "single benchmark without parent",
+			input: strings.NewReader("Benchmark   	   10000	     10000 ns/op"),
+			want: BenchmarkSets{
+				"Benchmark": {
+					{
+						Name:     "Benchmark",
+						N:        10000,
+						NsPerOp:  10000,
+						Measured: 1,
+					},
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			benchmarks, err := ReadAndSeparateBenchmarks(test.input)
 			if err != nil {
-				t.Errorf("Error reading benchmarks - error: %v", err)
+				if !errors.Is(err, test.wantErr) {
+					t.Errorf("Wanted error '%v', got error '%v'", test.wantErr, err)
+				}
 			}
 			if !reflect.DeepEqual(test.want, benchmarks) {
 				t.Errorf("want %v, got %v", test.want, benchmarks)
@@ -179,11 +210,11 @@ func BenchmarkReadAndSeparateBenchmarks(b *testing.B) {
 		input io.Reader
 	}{
 		{
-			name:  "Simple",
+			name:  "single benchmark",
 			input: strings.NewReader("BenchmarkSomething/SubBenchmark-12   	   10000	     10000 ns/op"),
 		},
 		{
-			name: "MultipleLines",
+			name: "multiple lines",
 			input: strings.NewReader(`BenchmarkSomething/SubBenchmark1-12   	   10000	     10000 ns/op
 BenchmarkSomething/SubBenchmark2-12   	   10000	     10000 ns/op
 BenchmarkSomething2/SubBenchmark3-12   	   10000	     10000 ns/op`),

@@ -21,7 +21,7 @@ func readBenchmarks(reader io.Reader) ([]parse.Benchmark, error) {
 
 		benchmark, err := parse.ParseLine(line)
 		if err != nil {
-			return nil, fmt.Errorf("parsing error: %v", err)
+			return nil, fmt.Errorf("parsing error: %w", ErrCouldNotParseLine)
 		}
 		results = append(results, *benchmark)
 	}
@@ -42,10 +42,6 @@ func ReadAndSeparateBenchmarks(reader io.Reader) (BenchmarkSets, error) {
 	results := make(map[string][]parse.Benchmark)
 	for _, val := range benchmarks {
 		parts := strings.Split(val.Name, "/")
-		if len(parts) < 1 {
-			continue
-		}
-
 		benchName := parts[0]
 
 		s, ok := results[benchName]
