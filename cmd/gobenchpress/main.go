@@ -27,15 +27,15 @@ func main() {
 
 func writeBenchmarks(name string, benchmarks []parse.Benchmark) {
 
-	renderer := benchpress.NewRasterRenderer(name)
+	renderer := benchpress.NewRasterRenderer(name, benchpress.SVG)
 
-	file, err := os.Create(name + ".png")
+	file, err := os.Create(name + ".svg")
 	if err != nil {
 		log.Fatalf("Could not open file for writing - error: %v", err)
 	}
 	defer file.Close()
 
-	err = renderer.Render(file, benchmarks)
+	err = renderer.Render(file, name, benchmarks)
 	if err != nil {
 		log.Fatalf("Could not output chart - error: %v", err)
 	}

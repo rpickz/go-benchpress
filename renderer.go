@@ -6,5 +6,5 @@ import (
 )
 
 type Renderer interface {
-	Render(io.Writer, []parse.Benchmark) error
+	Render(writer io.Writer, parentBenchmark string, benchmarks []parse.Benchmark) error
 }
