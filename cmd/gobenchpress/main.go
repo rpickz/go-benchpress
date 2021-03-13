@@ -35,8 +35,11 @@ func writeBenchmarks(name string, benchmarks []parse.Benchmark) {
 	}
 	defer file.Close()
 
-	err = renderer.Render(file, name, benchpress.RenderNsPerOp, benchmarks)
+	err = renderer.Render(file, name, benchpress.RenderBytesPerOp, benchmarks)
 	if err != nil {
+		// TODO: Update error detection method once merge request has been merged and released.
+		// TODO: Currently, when there is no range between the data points, `go-chart` errors using `fmt.Errorf`.
+		// TODO: This is the merge request: https://github.com/wcharczuk/go-chart/pull/169
 		log.Fatalf("Could not output chart - error: %v", err)
 	}
 }
