@@ -35,8 +35,9 @@ func RenderDimensionFromString(str string) (RenderDimension, error) {
 		return RenderBytesPerOp, nil
 	case "ALLOCS_PER_OP":
 		return RenderAllocsPerOp, nil
+	default:
+		return -1, fmt.Errorf("render dimension %q not supported: %w", str, ErrUnknownDimensionType)
 	}
-	return -1, fmt.Errorf("render dimension %q not supported: %w", str, ErrUnknownDimensionType)
 }
 
 type Renderer interface {

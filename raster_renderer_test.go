@@ -11,29 +11,68 @@ import (
 
 func TestRasterRenderType_String(t *testing.T) {
 	tests := []struct {
-		name string
+		name  string
 		input RasterRenderType
-		want string
+		want  string
 	}{
 		{
-			name: "png",
+			name:  "png",
 			input: PNG,
-			want: "PNG",
+			want:  "PNG",
 		},
 		{
-			name: "svg",
+			name:  "svg",
 			input: SVG,
-			want: "SVG",
+			want:  "SVG",
 		},
 		{
-			name: "svg",
+			name:  "svg",
 			input: RasterRenderType(1000),
-			want: "Unknown (1000)",
+			want:  "Unknown (1000)",
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			got := test.input.String()
+			if test.want != got {
+				t.Errorf("want %q, got %q", test.want, got)
+			}
+		})
+	}
+}
+
+func TestRasterRenderTypeFromString(t *testing.T) {
+	tests := []struct {
+		name    string
+		input   string
+		want    RasterRenderType
+		wantErr error
+	}{
+		{
+			name:  "png",
+			input: "PNG",
+			want:  PNG,
+		},
+		{
+			name:  "svg",
+			input: "SVG",
+			want:  SVG,
+		},
+		{
+			name:    "unknown",
+			input:   "abc123",
+			want:    RasterRenderType(-1),
+			wantErr: ErrUnknownRasterRenderType,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got, err := RasterRenderTypeFromString(test.input)
+			if err != nil {
+				if !errors.Is(err, test.wantErr) {
+					t.Errorf("Want error '%v', got error '%v'", test.wantErr, err)
+				}
+			}
 			if test.want != got {
 				t.Errorf("want %q, got %q", test.want, got)
 			}

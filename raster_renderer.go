@@ -25,6 +25,17 @@ func (r RasterRenderType) String() string {
 	}
 }
 
+func RasterRenderTypeFromString(str string) (RasterRenderType, error) {
+	switch str {
+	case "PNG":
+		return PNG, nil
+	case "SVG":
+		return SVG, nil
+	default:
+		return -1, fmt.Errorf("raster render type %q not supported: %w", str, ErrUnknownRasterRenderType)
+	}
+}
+
 // RasterRenderer outputs a raster graphic based representation of the benchmarks, compared against one another.
 type RasterRenderer struct {
 	Title string

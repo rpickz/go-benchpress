@@ -11,6 +11,7 @@ import (
 
 var input = flag.String("input", "STDIN", "The input filename")
 var outputFilename = flag.String("output", "output.svg", "The output filename")
+var renderType = flag.String("renderType", "SVG", "The render type - can be 'SVG' or 'PNG'")
 var dimension = flag.String("dimension", "NS_PER_OP", "The dimension to compare - can be 'NS_PER_OP', 'BYTES_PER_OP', 'ALLOCS_PER_OP'")
 
 func main() {
@@ -45,7 +46,12 @@ func main() {
 
 func writeBenchmarks(name string, benchmarks []parse.Benchmark, dimension benchpress.RenderDimension, outputFilename string) {
 
-	renderer := benchpress.NewRasterRenderer(name, benchpress.SVG)
+	renderType, err := benchpress.RasterRenderTypeFromString(*renderType)
+	if err != nil {
+		log.Fatalf("Could not determine valid render type - error: %v", err)
+	}
+
+	renderer := benchpress.NewRasterRenderer(name, renderType)
 
 	file, err := os.Create(outputFilename)
 	if err != nil {
@@ -53,7 +59,7 @@ func writeBenchmarks(name string, benchmarks []parse.Benchmark, dimension benchp
 	}
 	defer file.Close()
 
-	err = renderer.Render(file, name, benchpress.RenderNsPerOp, benchmarks)
+	err = renderer.Render(file, name, dimension, benchmarks)
 	if err != nil {
 		// TODO: Update error detection method once merge request has been merged and released.
 		// TODO: Currently, when there is no range between the data points, `go-chart` errors using `fmt.Errorf`.
