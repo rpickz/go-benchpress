@@ -23,9 +23,9 @@ func TestSVGOutput(t *testing.T) {
 	}
 
 	got := len(content)
-	want := 6816
-	if want != got {
-		t.Errorf("Want %d content length, got %d content length", want, len(content))
+	wantMoreThan := 3000
+	if got < wantMoreThan {
+		t.Errorf("Want more than %d content length, got %d content length", wantMoreThan, len(content))
 	}
 }
 
@@ -47,9 +47,9 @@ func TestPNGOutput(t *testing.T) {
 	}
 
 	got := len(content)
-	want := 34243
-	if want != got {
-		t.Errorf("Want %d content length, got %d content length", want, len(content))
+	wantMoreThan := 3000
+	if got < wantMoreThan {
+		t.Errorf("Want more than %d content length, got %d content length", wantMoreThan, len(content))
 	}
 }
 
