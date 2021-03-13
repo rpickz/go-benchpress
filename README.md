@@ -1,4 +1,5 @@
 # Go Benchpress
+[![codecov](https://codecov.io/gh/rpickz/go-benchpress/branch/main/graph/badge.svg?token=D3097TFF89)](https://codecov.io/gh/rpickz/go-benchpress)
 
 Go Benchpress is a visualisation utility for comparing the results of benchmarks.
 
