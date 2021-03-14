@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-// readBenchmarks uses the provided reader, and reads the benchmarks from the read lines.
+// ReadBenchmarks uses the provided reader, and reads the benchmarks from the read lines.
 // If lines cannot be read, or parsed, an error is returned.
-func readBenchmarks(reader io.Reader) ([]parse.Benchmark, error) {
+func ReadBenchmarks(reader io.Reader) ([]parse.Benchmark, error) {
 	var results []parse.Benchmark
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
@@ -34,7 +34,7 @@ type BenchmarkSets map[string][]parse.Benchmark
 // ReadAndSeparateBenchmarks reads benchmarks from the provided reader, and groups them by benchmark name
 // (which is split from sub-benchmark names).  If the operation did not succeed, an error is returned.
 func ReadAndSeparateBenchmarks(reader io.Reader) (BenchmarkSets, error) {
-	benchmarks, err := readBenchmarks(reader)
+	benchmarks, err := ReadBenchmarks(reader)
 	if err != nil {
 		return nil, err
 	}

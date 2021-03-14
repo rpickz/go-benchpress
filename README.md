@@ -11,6 +11,21 @@ Sub-benchmarks are particularly useful for understanding how a particular featur
 Go Benchpress simplifies visualising these benchmark results - designed particularly for sub-benchmarks and demonstrating
 how your code performs at different data-set sizes - visually.
 
+## What Is Output?
+
+Go Benchpress outputs, by default, a file of results for each benchmark passed in (via the Benchmark result data).
+
+This is so that sub-benchmarks can be compared more easily.
+
+A second mode of operation exists - 'no separation'.  This is where the results of __all__ the passed in benchmarks
+are output into a single file.
+
+You will find more information on the specifics of this in the [CSV Parser](./examples/csvparser) package - the README
+contains details instructions on CLI usage, and how to make use of these different modes.
+
+So, given Go Benchpress will either output a file for each benchmark, or a single file for all benchmarks, what formats
+are available?
+
 ## What Does It Look Like?
 
 Go Benchpress output can look like a variety of things.

@@ -15,6 +15,7 @@ var input = flag.String("input", "STDIN", "The input filename")
 var outputFilename = flag.String("output", "output_{}", "The output filename")
 var renderType = flag.String("renderType", "SVG", "The render type - can be 'SVG', 'PNG', 'JSON', 'CSV', or 'XML'")
 var dimension = flag.String("dimension", "NS_PER_OP", "The dimension to compare - can be 'NS_PER_OP', 'BYTES_PER_OP', 'ALLOCS_PER_OP'")
+var noSeparation = flag.Bool("noSep", false, "Whether to separate the sub-benchmarks, and group by their parent benchmark.  If true, the benchmarks are put together into a single output")
 
 var _logError = logError
 
@@ -33,14 +34,26 @@ func main() {
 		reader = file
 	}
 
-	separatedBenchmarks, err := go_benchpress.ReadAndSeparateBenchmarks(reader)
-	if err != nil {
-		_logError("Could not read benchmarks from input - error: %v", err)
-	}
-
 	dim, err := go_benchpress.RenderDimensionFromString(*dimension)
 	if err != nil {
 		_logError("Render dimension %q invalid", *dimension)
+	}
+
+	// If no separation required, read the benchmarks and output to single file.
+	if *noSeparation {
+		benchmarks, err := go_benchpress.ReadBenchmarks(reader)
+		if err != nil {
+			_logError("Could not read benchmarks from input - error: %v")
+		}
+		writeBenchmarks("all_together", benchmarks, dim, *outputFilename)
+		return
+	}
+
+	// Alternatively, separate the benchmarks so they are grouped by their parent benchmark, and write the results
+	// to separate files.
+	separatedBenchmarks, err := go_benchpress.ReadAndSeparateBenchmarks(reader)
+	if err != nil {
+		_logError("Could not read benchmarks from input - error: %v", err)
 	}
 
 	for name, benchmarks := range separatedBenchmarks {

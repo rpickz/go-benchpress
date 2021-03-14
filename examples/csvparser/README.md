@@ -20,6 +20,13 @@ alternatively use STDIN to stream the output directly into Go Benchpress.
 
 ## Saving Benchmark Results to File
 
+There are two modes of operation for Go Benchpress - to output all the results together (not separated by parent benchmark),
+or to group them (separate them) based on their parent benchmark.
+
+This section covers the latter approach - with the results separated into different files for each benchmark.
+
+The former approach - to show all of the results unseparated is covered later in this guide.
+
 ### 1. Get Benchmark Data
 
 Use the following command to save the result to a file:
@@ -107,3 +114,17 @@ You should now see files named as follows within that directory:
 
 An example of the XML output can be found here: [Example XML Output](./example_xml_output.xml).
 
+## Showing All Benchmarks Results Together (Unseparated)
+
+To view all Go Benchpress results together (for all benchmarks input), you simply use the `-noSep` flag on the command line.
+
+For instance, to render an CSV output with all benchmarks output __together__, you could use the following:
+```bash
+go test -bench . | gobenchpress -renderType CSV -noSep
+```
+
+This results in a CSV file with all of the provided benchmarks output together.
+
+You can find an example of this output here: [Example Unseparated CSV Output](./example_csv_output_all_together.csv)
+
+This same approach can be used for any of the other formats too.

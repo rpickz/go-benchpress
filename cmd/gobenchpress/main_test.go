@@ -20,6 +20,8 @@ func TestSVGOutput(t *testing.T) {
 	file := setupOutputFile(t, go_benchpress.SVG)
 	defer file.Close()
 
+	*noSeparation = false
+
 	// Call program entry point.
 	main()
 
@@ -42,6 +44,8 @@ func TestPNGOutput(t *testing.T) {
 
 	file := setupOutputFile(t, go_benchpress.PNG)
 	defer file.Close()
+
+	*noSeparation = false
 
 	setupRenderType(go_benchpress.PNG)
 
@@ -66,6 +70,8 @@ func TestJSONOutput(t *testing.T) {
 	file := setupOutputFile(t, go_benchpress.JSON)
 	defer file.Close()
 
+	*noSeparation = false
+
 	setupRenderType(go_benchpress.JSON)
 
 	// Call program entry point.
@@ -76,10 +82,56 @@ func TestJSONOutput(t *testing.T) {
 		t.Fatalf("Could not read output file - error: %v", err)
 	}
 
-	data := new(interface{})
+	type jsonRecord struct {
+		Benchmarks []interface{}
+	}
+
+	var data jsonRecord
 	err = json.Unmarshal(content, &data)
 	if err != nil {
 		t.Errorf("Could not decode JSON file - error: %v", err)
+	}
+
+	wantLen := 8
+	gotLen := len(data.Benchmarks)
+	if wantLen != gotLen {
+		t.Errorf("Wanted %d benchmark records, got %d", wantLen, gotLen)
+	}
+}
+
+func TestJSONOutputNoSeparation(t *testing.T) {
+	benchmarkFile := setupBenchmarkInput(t)
+	defer benchmarkFile.Close()
+
+	file := setupOutputFile(t, go_benchpress.JSON)
+	defer file.Close()
+
+	*noSeparation = true
+
+	setupRenderType(go_benchpress.JSON)
+
+	// Call program entry point.
+	main()
+
+	content, err := ioutil.ReadAll(file)
+	if err != nil {
+		t.Fatalf("Could not read output file - error: %v", err)
+	}
+
+	type jsonRecord struct {
+		Benchmarks []interface{}
+	}
+
+	var data jsonRecord
+	err = json.Unmarshal(content, &data)
+	if err != nil {
+		t.Errorf("Could not decode JSON file - error: %v", err)
+	}
+
+	wantLen := 16
+	gotLen := len(data.Benchmarks)
+	if wantLen != gotLen {
+		t.Errorf("Wanted %d benchmark records, got %d", wantLen, gotLen)
 	}
 }
 
@@ -90,15 +142,50 @@ func TestCSVOutput(t *testing.T) {
 	file := setupOutputFile(t, go_benchpress.CSV)
 	defer file.Close()
 
+	*noSeparation = false
+
 	setupRenderType(go_benchpress.CSV)
 
 	// Call program entry point.
 	main()
 
 	csvReader := csv.NewReader(file)
-	_, err := csvReader.ReadAll()
+	records, err := csvReader.ReadAll()
 	if err != nil {
 		t.Errorf("Could not decode CSV file - error: %v", err)
+	}
+
+	wantLen := 9 // 9 benchmarks + header row
+	gotLen := len(records)
+	if wantLen != gotLen {
+		t.Errorf("Wanted %d records, got %d records", wantLen, gotLen)
+	}
+}
+
+func TestCSVOutputNoSeparation(t *testing.T) {
+	benchmarkFile := setupBenchmarkInput(t)
+	defer benchmarkFile.Close()
+
+	file := setupOutputFile(t, go_benchpress.CSV)
+	defer file.Close()
+
+	*noSeparation = true
+
+	setupRenderType(go_benchpress.CSV)
+
+	// Call program entry point.
+	main()
+
+	csvReader := csv.NewReader(file)
+	records, err := csvReader.ReadAll()
+	if err != nil {
+		t.Errorf("Could not decode CSV file - error: %v", err)
+	}
+
+	wantLen := 17 // 16 benchmarks + header row
+	gotLen := len(records)
+	if wantLen != gotLen {
+		t.Errorf("Wanted %d records, got %d records", wantLen, gotLen)
 	}
 }
 
@@ -108,6 +195,8 @@ func TestXMLOutput(t *testing.T) {
 
 	file := setupOutputFile(t, go_benchpress.XML)
 	defer file.Close()
+
+	*noSeparation = false
 
 	setupRenderType(go_benchpress.XML)
 
@@ -120,10 +209,67 @@ func TestXMLOutput(t *testing.T) {
 	}
 
 	// Unmarshal SVG as XML - test file not corrupt, or wrong format.
-	xmlData := make([]interface{}, 0)
+	type xmlRecord struct {
+		Benchmarks []interface{}
+	}
+
+	xmlData := make([]xmlRecord, 0)
 	err = xml.Unmarshal(content, &xmlData)
 	if err != nil {
 		t.Errorf("Error unmarshalling XML - error: %v", err)
+	}
+
+	rootNodes := len(xmlData)
+	if rootNodes != 1 {
+		t.Fatalf("Wanted %d root XML nodes, got %d", 1, rootNodes)
+	}
+
+	wantLen := 8
+	gotLen := len(xmlData[0].Benchmarks)
+	if wantLen != gotLen {
+		t.Errorf("Wanted %d records, got %d records", wantLen, gotLen)
+	}
+}
+
+func TestXMLOutputNoSeparation(t *testing.T) {
+	benchmarkFile := setupBenchmarkInput(t)
+	defer benchmarkFile.Close()
+
+	file := setupOutputFile(t, go_benchpress.XML)
+	defer file.Close()
+
+	*noSeparation = true
+
+	setupRenderType(go_benchpress.XML)
+
+	// Call program entry point.
+	main()
+
+	content, err := ioutil.ReadAll(file)
+	if err != nil {
+		t.Fatalf("Could not read output file - error: %v", err)
+	}
+
+	// Unmarshal SVG as XML - test file not corrupt, or wrong format.
+	type xmlRecord struct {
+		Benchmarks []interface{}
+	}
+
+	xmlData := make([]xmlRecord, 0)
+	err = xml.Unmarshal(content, &xmlData)
+	if err != nil {
+		t.Errorf("Error unmarshalling XML - error: %v", err)
+	}
+
+	rootNodes := len(xmlData)
+	if rootNodes != 1 {
+		t.Fatalf("Wanted %d root XML nodes, got %d", 1, rootNodes)
+	}
+
+	wantLen := 16
+	gotLen := len(xmlData[0].Benchmarks)
+	if wantLen != gotLen {
+		t.Errorf("Wanted %d records, got %d records", wantLen, gotLen)
 	}
 }
 

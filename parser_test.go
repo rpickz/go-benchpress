@@ -69,7 +69,7 @@ BenchmarkSomething/SubBenchmark3-12   	   10000	     10000 ns/op`),
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			benchmarks, err := readBenchmarks(test.input)
+			benchmarks, err := ReadBenchmarks(test.input)
 			if err != nil {
 				if !errors.Is(err, test.wantErr) {
 					t.Errorf("Wanted error '%v', got error '%v'", test.wantErr, err)
@@ -104,7 +104,7 @@ BenchmarkSomething2/SubBenchmark3-12   	   10000	     10000 ns/op`),
 		b.Run(bm.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				var err error
-				benchmarksRead, err = readBenchmarks(bm.input)
+				benchmarksRead, err = ReadBenchmarks(bm.input)
 				if err != nil {
 					b.Errorf("Could not read benchmark - error: %v", err)
 				}
