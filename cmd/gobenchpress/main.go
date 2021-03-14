@@ -7,10 +7,11 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
 var input = flag.String("input", "STDIN", "The input filename")
-var outputFilename = flag.String("output", "output.svg", "The output filename")
+var outputFilename = flag.String("output", "output_{}.svg", "The output filename")
 var renderType = flag.String("renderType", "SVG", "The render type - can be 'SVG' or 'PNG'")
 var dimension = flag.String("dimension", "NS_PER_OP", "The dimension to compare - can be 'NS_PER_OP', 'BYTES_PER_OP', 'ALLOCS_PER_OP'")
 
@@ -46,6 +47,8 @@ func main() {
 
 func writeBenchmarks(name string, benchmarks []parse.Benchmark, dimension go_benchpress.RenderDimension, outputFilename string) {
 
+	outputName := strings.ReplaceAll(outputFilename, "{}", name)
+
 	renderType, err := go_benchpress.RasterRenderTypeFromString(*renderType)
 	if err != nil {
 		log.Fatalf("Could not determine valid render type - error: %v", err)
@@ -53,7 +56,7 @@ func writeBenchmarks(name string, benchmarks []parse.Benchmark, dimension go_ben
 
 	renderer := go_benchpress.NewRasterRenderer(name, renderType)
 
-	file, err := os.Create(outputFilename)
+	file, err := os.Create(outputName)
 	if err != nil {
 		log.Fatalf("Could not open file for writing - error: %v", err)
 	}
