@@ -33,6 +33,7 @@ There are also other formats to choose from - overall the following formats are 
 2. PNG (as a bar chart)
 3. JSON
 4. CSV
+5. XML
 
 See the example [CSV Parser](./examples/csvparser) package for instructions on how to use different formats, and what
 they look like.

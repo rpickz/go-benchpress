@@ -13,7 +13,7 @@ import (
 
 var input = flag.String("input", "STDIN", "The input filename")
 var outputFilename = flag.String("output", "output_{}", "The output filename")
-var renderType = flag.String("renderType", "SVG", "The render type - can be 'SVG', 'PNG', 'JSON', or 'CSV'")
+var renderType = flag.String("renderType", "SVG", "The render type - can be 'SVG', 'PNG', 'JSON', 'CSV', or 'XML'")
 var dimension = flag.String("dimension", "NS_PER_OP", "The dimension to compare - can be 'NS_PER_OP', 'BYTES_PER_OP', 'ALLOCS_PER_OP'")
 
 var _logError = logError

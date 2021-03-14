@@ -102,6 +102,31 @@ func TestCSVOutput(t *testing.T) {
 	}
 }
 
+func TestXMLOutput(t *testing.T) {
+	benchmarkFile := setupBenchmarkInput(t)
+	defer benchmarkFile.Close()
+
+	file := setupOutputFile(t, go_benchpress.XML)
+	defer file.Close()
+
+	setupRenderType(go_benchpress.XML)
+
+	// Call program entry point.
+	main()
+
+	content, err := ioutil.ReadAll(file)
+	if err != nil {
+		t.Fatalf("Could not read output file - error: %v", err)
+	}
+
+	// Unmarshal SVG as XML - test file not corrupt, or wrong format.
+	xmlData := make([]interface{}, 0)
+	err = xml.Unmarshal(content, &xmlData)
+	if err != nil {
+		t.Errorf("Error unmarshalling XML - error: %v", err)
+	}
+}
+
 func TestInvalidRenderType(t *testing.T) {
 	wantErr := `Could not determine valid render type - error: render type "Unknown (1000)" not supported: unknown render type`
 	errorLogger := fakeErrorLogger{}

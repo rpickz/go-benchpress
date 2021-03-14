@@ -35,6 +35,11 @@ func TestRenderType_String(t *testing.T) {
 			want:  "CSV",
 		},
 		{
+			name:  "xml",
+			input: XML,
+			want:  "XML",
+		},
+		{
 			name:  "unknown",
 			input: RenderType(1000),
 			want:  "Unknown (1000)",
@@ -76,6 +81,11 @@ func TestRenderTypeFromString(t *testing.T) {
 			name:  "csv",
 			input: "CSV",
 			want:  CSV,
+		},
+		{
+			name:  "xml",
+			input: "XML",
+			want:  XML,
 		},
 		{
 			name:    "unknown",
@@ -168,6 +178,21 @@ func TestRenderType_Renderer(t *testing.T) {
 			},
 		},
 		{
+			name:  "xml",
+			input: XML,
+			wantCmp: func(t *testing.T, got Renderer) {
+				raster, ok := got.(*XMLRenderer)
+				if !ok {
+					t.Fatal("Could not convert renderer to XMLRenderer")
+				}
+				want := XMLRenderer{}
+
+				if !reflect.DeepEqual(want, *raster) {
+					t.Errorf("Wanted %v, got %v", want, *raster)
+				}
+			},
+		},
+		{
 			name: "unknown",
 			input: RenderType(1000),
 			wantErr: ErrUnknownRenderType,
@@ -213,6 +238,11 @@ func TestRenderType_FileExtension(t *testing.T) {
 			name: "csv",
 			input: CSV,
 			want: ".csv",
+		},
+		{
+			name: "xml",
+			input: XML,
+			want: ".xml",
 		},
 		{
 			name: "unknown",

@@ -15,6 +15,7 @@ const (
 	SVG
 	JSON
 	CSV
+	XML
 )
 
 func (r RenderType) String() string {
@@ -27,6 +28,8 @@ func (r RenderType) String() string {
 		return "JSON"
 	case CSV:
 		return "CSV"
+	case XML:
+		return "XML"
 	default:
 		return fmt.Sprintf("Unknown (%d)", r)
 	}
@@ -42,6 +45,8 @@ func (r RenderType) Renderer(title string) (Renderer, error) {
 		return &JSONRenderer{}, nil
 	case CSV:
 		return &CSVRenderer{}, nil
+	case XML:
+		return &XMLRenderer{}, nil
 	default:
 		return nil, ErrUnknownRenderType
 	}
@@ -57,6 +62,8 @@ func (r RenderType) FileExtension() string {
 		return ".json"
 	case CSV:
 		return ".csv"
+	case XML:
+		return ".xml"
 	default:
 		return ""
 	}
@@ -72,6 +79,8 @@ func RenderTypeFromString(str string) (RenderType, error) {
 		return JSON, nil
 	case "CSV":
 		return CSV, nil
+	case "XML":
+		return XML, nil
 	default:
 		return -1, fmt.Errorf("render type %q not supported: %w", str, ErrUnknownRenderType)
 	}

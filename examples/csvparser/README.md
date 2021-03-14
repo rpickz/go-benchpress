@@ -66,7 +66,7 @@ If you open those files you should see the sub-benchmarks laid out in bar charts
 
 Go Benchpress can output in different formats, other than bar charts.
 
-Go Benchpress can also output in `JSON` and `CSV` formats.
+Go Benchpress can also output in `JSON`, `CSV` and `XML` formats.
 
 ### JSON
 
@@ -93,3 +93,17 @@ You should now see files named as follows within that directory:
 2. `output_BenchmarkParseCSVLineFields.csv`
 
 An example of the CSV output can be found here: [Example CSV Output](./example_csv_output.csv).
+
+### XML
+
+To output in XML format, use the `-renderType XML` CLI switch, as follows:
+```bash
+go test -bench . | gobenchpress -renderType XML
+```
+
+You should now see files named as follows within that directory:
+1. `output_BenchmarkParseCSVLineFieldLength.xml`
+2. `output_BenchmarkParseCSVLineFields.xml`
+
+An example of the XML output can be found here: [Example XML Output](./example_xml_output.xml).
+
