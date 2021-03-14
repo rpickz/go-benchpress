@@ -1,0 +1,85 @@
+{
+  "ParentBenchmark": "BenchmarkParseCSVLineFields",
+  "Benchmarks": [
+    {
+      "Name": "BenchmarkParseCSVLineFields/10_Fields-12",
+      "N": 5836092,
+      "NsPerOp": 198.7,
+      "AllocedBytesPerOp": 0,
+      "AllocsPerOp": 0,
+      "MBPerS": 0,
+      "Measured": 1,
+      "Ord": 0
+    },
+    {
+      "Name": "BenchmarkParseCSVLineFields/20_Fields-12",
+      "N": 5800834,
+      "NsPerOp": 206.2,
+      "AllocedBytesPerOp": 0,
+      "AllocsPerOp": 0,
+      "MBPerS": 0,
+      "Measured": 1,
+      "Ord": 0
+    },
+    {
+      "Name": "BenchmarkParseCSVLineFields/40_Fields-12",
+      "N": 5611478,
+      "NsPerOp": 216.6,
+      "AllocedBytesPerOp": 0,
+      "AllocsPerOp": 0,
+      "MBPerS": 0,
+      "Measured": 1,
+      "Ord": 0
+    },
+    {
+      "Name": "BenchmarkParseCSVLineFields/80_Fields-12",
+      "N": 5352945,
+      "NsPerOp": 227.4,
+      "AllocedBytesPerOp": 0,
+      "AllocsPerOp": 0,
+      "MBPerS": 0,
+      "Measured": 1,
+      "Ord": 0
+    },
+    {
+      "Name": "BenchmarkParseCSVLineFields/160_Fields-12",
+      "N": 4738449,
+      "NsPerOp": 248.5,
+      "AllocedBytesPerOp": 0,
+      "AllocsPerOp": 0,
+      "MBPerS": 0,
+      "Measured": 1,
+      "Ord": 0
+    },
+    {
+      "Name": "BenchmarkParseCSVLineFields/320_Fields-12",
+      "N": 4067937,
+      "NsPerOp": 295.6,
+      "AllocedBytesPerOp": 0,
+      "AllocsPerOp": 0,
+      "MBPerS": 0,
+      "Measured": 1,
+      "Ord": 0
+    },
+    {
+      "Name": "BenchmarkParseCSVLineFields/640_Fields-12",
+      "N": 2803302,
+      "NsPerOp": 426,
+      "AllocedBytesPerOp": 0,
+      "AllocsPerOp": 0,
+      "MBPerS": 0,
+      "Measured": 1,
+      "Ord": 0
+    },
+    {
+      "Name": "BenchmarkParseCSVLineFields/1280_Fields-12",
+      "N": 1950760,
+      "NsPerOp": 619.8,
+      "AllocedBytesPerOp": 0,
+      "AllocsPerOp": 0,
+      "MBPerS": 0,
+      "Measured": 1,
+      "Ord": 0
+    }
+  ]
+}

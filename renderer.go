@@ -13,6 +13,8 @@ type RenderType int
 const (
 	PNG RenderType = iota
 	SVG
+	JSON
+	CSV
 )
 
 func (r RenderType) String() string {
@@ -21,8 +23,42 @@ func (r RenderType) String() string {
 		return "PNG"
 	case SVG:
 		return "SVG"
+	case JSON:
+		return "JSON"
+	case CSV:
+		return "CSV"
 	default:
 		return fmt.Sprintf("Unknown (%d)", r)
+	}
+}
+
+// Renderer provides an instance of a Renderer for the RenderType - for instance, a JSONRenderer for JSON.
+// If there is no matching Renderer for the RenderType, an ErrUnknownRenderType is returned.
+func (r RenderType) Renderer(title string) (Renderer, error) {
+	switch r {
+	case PNG, SVG:
+		return NewRasterRenderer(title, r), nil
+	case JSON:
+		return &JSONRenderer{}, nil
+	case CSV:
+		return &CSVRenderer{}, nil
+	default:
+		return nil, ErrUnknownRenderType
+	}
+}
+
+func (r RenderType) FileExtension() string {
+	switch r {
+	case PNG:
+		return ".png"
+	case SVG:
+		return ".svg"
+	case JSON:
+		return ".json"
+	case CSV:
+		return ".csv"
+	default:
+		return ""
 	}
 }
 
@@ -32,12 +68,14 @@ func RenderTypeFromString(str string) (RenderType, error) {
 		return PNG, nil
 	case "SVG":
 		return SVG, nil
+	case "JSON":
+		return JSON, nil
+	case "CSV":
+		return CSV, nil
 	default:
 		return -1, fmt.Errorf("render type %q not supported: %w", str, ErrUnknownRenderType)
 	}
 }
-
-
 
 // ===== RenderDimension =====
 
@@ -52,11 +90,11 @@ const (
 func (r RenderDimension) String() string {
 	switch r {
 	case RenderNsPerOp:
-		return "Ns Per Op"
+		return "NS_PER_OP"
 	case RenderBytesPerOp:
-		return "Bytes Per Op"
+		return "BYTES_PER_OP"
 	case RenderAllocsPerOp:
-		return "Allocs Per Op"
+		return "ALLOCS_PER_OP"
 	default:
 		return fmt.Sprintf("Unknown (%d)", r)
 	}

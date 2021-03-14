@@ -13,7 +13,9 @@ how your code performs at different data-set sizes - visually.
 
 ## What Does It Look Like?
 
-This is what a Go Benchpress output looks like:
+Go Benchpress output can look like a variety of things.
+
+Graphically, this is what a Go Benchpress output looks like:
 
 ![Example Output](examples/csvparser/example_output.svg "Example Output")
 
@@ -21,10 +23,19 @@ As you can see, it compares all the results for a single benchmark (across its v
 their relative values visually.
 
 You can choose between several dimensions (including nanoseconds per operation, bytes per operation, etc.) - for
-the most recent advise on this, please consult the help text using:
+the most recent advice on this, please consult the help text using:
 ```bash
 gobenchpress -help
 ```
+
+There are also other formats to choose from - overall the following formats are supported:
+1. SVG (as a bar chart)
+2. PNG (as a bar chart)
+3. JSON
+4. CSV
+
+See the example [CSV Parser](./examples/csvparser) package for instructions on how to use different formats, and what
+they look like.
 
 ## How to Install?
 

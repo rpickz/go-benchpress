@@ -1,7 +1,13 @@
 package main
 
 import (
+	"bytes"
+	"encoding/csv"
+	"encoding/json"
+	"encoding/xml"
+	"fmt"
 	"github.com/rpickz/go-benchpress"
+	"image/png"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -11,7 +17,7 @@ func TestSVGOutput(t *testing.T) {
 	benchmarkFile := setupBenchmarkInput(t)
 	defer benchmarkFile.Close()
 
-	file := setupOutputFile(t)
+	file := setupOutputFile(t, go_benchpress.SVG)
 	defer file.Close()
 
 	// Call program entry point.
@@ -22,10 +28,11 @@ func TestSVGOutput(t *testing.T) {
 		t.Fatalf("Could not read output file - error: %v", err)
 	}
 
-	got := len(content)
-	wantMoreThan := 3000
-	if got < wantMoreThan {
-		t.Errorf("Want more than %d content length, got %d content length", wantMoreThan, len(content))
+	// Unmarshal SVG as XML - test file not corrupt, or wrong format.
+	xmlData := make([]interface{}, 0)
+	err = xml.Unmarshal(content, &xmlData)
+	if err != nil {
+		t.Errorf("Error unmarshalling SVG as XML - error: %v", err)
 	}
 }
 
@@ -33,7 +40,7 @@ func TestPNGOutput(t *testing.T) {
 	benchmarkFile := setupBenchmarkInput(t)
 	defer benchmarkFile.Close()
 
-	file := setupOutputFile(t)
+	file := setupOutputFile(t, go_benchpress.PNG)
 	defer file.Close()
 
 	setupRenderType(go_benchpress.PNG)
@@ -46,21 +53,213 @@ func TestPNGOutput(t *testing.T) {
 		t.Fatalf("Could not read output file - error: %v", err)
 	}
 
-	got := len(content)
-	wantMoreThan := 3000
-	if got < wantMoreThan {
-		t.Errorf("Want more than %d content length, got %d content length", wantMoreThan, len(content))
+	_, err = png.Decode(bytes.NewBuffer(content))
+	if err != nil {
+		t.Errorf("Could not decode PNG file - error: %v", err)
 	}
 }
 
-func setupRenderType(t go_benchpress.RenderType) {
-	render := new(string)
-	*render = t.String()
-	renderType = render
+func TestJSONOutput(t *testing.T) {
+	benchmarkFile := setupBenchmarkInput(t)
+	defer benchmarkFile.Close()
+
+	file := setupOutputFile(t, go_benchpress.JSON)
+	defer file.Close()
+
+	setupRenderType(go_benchpress.JSON)
+
+	// Call program entry point.
+	main()
+
+	content, err := ioutil.ReadAll(file)
+	if err != nil {
+		t.Fatalf("Could not read output file - error: %v", err)
+	}
+
+	data := new(interface{})
+	err = json.Unmarshal(content, &data)
+	if err != nil {
+		t.Errorf("Could not decode JSON file - error: %v", err)
+	}
 }
 
-func setupOutputFile(t *testing.T) *os.File {
-	file, err := os.CreateTemp("", "benchmark-output-*.svg")
+func TestCSVOutput(t *testing.T) {
+	benchmarkFile := setupBenchmarkInput(t)
+	defer benchmarkFile.Close()
+
+	file := setupOutputFile(t, go_benchpress.CSV)
+	defer file.Close()
+
+	setupRenderType(go_benchpress.CSV)
+
+	// Call program entry point.
+	main()
+
+	csvReader := csv.NewReader(file)
+	_, err := csvReader.ReadAll()
+	if err != nil {
+		t.Errorf("Could not decode CSV file - error: %v", err)
+	}
+}
+
+func TestInvalidRenderType(t *testing.T) {
+	wantErr := `Could not determine valid render type - error: render type "Unknown (1000)" not supported: unknown render type`
+	errorLogger := fakeErrorLogger{}
+
+	defer func() {
+		p := recover()
+		if p != nil {
+			if !errorLogger.called {
+				t.Fatalf("Unexpected panic - not triggered by error logger - panic: %v", p)
+			}
+
+			if wantErr != errorLogger.msg {
+				t.Errorf("Wanted error msg %q, got error msg %q", wantErr, errorLogger.msg)
+			}
+		}
+
+		// Ensure error logger is called, regardless of if panic occurs.
+		if !errorLogger.called {
+			t.Error("Error logger not called - expected error")
+		}
+	}()
+
+	_logError = errorLogger.logError
+
+	benchmarkFile := setupBenchmarkInput(t)
+	defer benchmarkFile.Close()
+
+	renderType := go_benchpress.RenderType(1000)
+
+	file := setupOutputFile(t, renderType)
+	defer file.Close()
+
+	setupRenderType(renderType)
+
+	// Call program entry point.
+	main()
+}
+
+func TestInvalidRenderDimension(t *testing.T) {
+	wantErr := `Render dimension "Unknown (1000)" invalid`
+	errorLogger := fakeErrorLogger{}
+
+	defer func() {
+		p := recover()
+		if p != nil {
+			if !errorLogger.called {
+				t.Fatalf("Unexpected panic - not triggered by error logger - panic: %v", p)
+			}
+
+			if wantErr != errorLogger.msg {
+				t.Errorf("Wanted error msg %q, got error msg %q", wantErr, errorLogger.msg)
+			}
+		}
+
+		// Ensure error logger is called, regardless of if panic occurs.
+		if !errorLogger.called {
+			t.Error("Error logger not called - expected error")
+		}
+	}()
+
+	_logError = errorLogger.logError
+
+	benchmarkFile := setupBenchmarkInput(t)
+	defer benchmarkFile.Close()
+
+	setupRenderDimension(go_benchpress.RenderDimension(1000))
+
+	file := setupOutputFile(t, go_benchpress.SVG)
+	defer file.Close()
+
+	setupRenderType(go_benchpress.SVG)
+
+	// Call program entry point.
+	main()
+}
+
+// ===== determineOutputFilename tests =====
+
+func TestDetermineOutputFilename(t *testing.T) {
+	tests := []struct {
+		name           string
+		outputFilename string
+		renderType     go_benchpress.RenderType
+		want           string
+	}{
+		// === Tests not correcting file extension ===
+		{
+			name:           "png",
+			outputFilename: "hello.png",
+			renderType:     go_benchpress.PNG,
+			want:           "hello.png",
+		},
+		{
+			name:           "svg",
+			outputFilename: "hello.svg",
+			renderType:     go_benchpress.SVG,
+			want:           "hello.svg",
+		},
+		{
+			name:           "json",
+			outputFilename: "hello.json",
+			renderType:     go_benchpress.JSON,
+			want:           "hello.json",
+		},
+		{
+			name:           "csv",
+			outputFilename: "hello.csv",
+			renderType:     go_benchpress.CSV,
+			want:           "hello.csv",
+		},
+		// === Incorrect file extension correction tests ===
+		{
+			name:           "incorrect png",
+			outputFilename: "hello.something",
+			renderType:     go_benchpress.PNG,
+			want:           "hello.png",
+		},
+		{
+			name:           "incorrect svg",
+			outputFilename: "hello.something",
+			renderType:     go_benchpress.SVG,
+			want:           "hello.svg",
+		},
+		{
+			name:           "incorrect json",
+			outputFilename: "hello.something",
+			renderType:     go_benchpress.JSON,
+			want:           "hello.json",
+		},
+		{
+			name:           "incorrect csv",
+			outputFilename: "hello.something",
+			renderType:     go_benchpress.CSV,
+			want:           "hello.csv",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := determineOutputFilename(test.outputFilename, test.renderType)
+			if test.want != got {
+				t.Errorf("Wanted %q, got %q", test.want, got)
+			}
+		})
+	}
+}
+
+// ===== Test utilities =====
+
+func setupRenderDimension(t go_benchpress.RenderDimension) {
+	*dimension = t.String()
+}
+
+func setupRenderType(t go_benchpress.RenderType) {
+	*renderType = t.String()
+}
+
+func setupOutputFile(t *testing.T, renderType go_benchpress.RenderType) *os.File {
+	file, err := os.CreateTemp("", "benchmark-output-*"+renderType.FileExtension())
 	if err != nil {
 		t.Fatalf("Could not create temporary file for output data")
 	}
@@ -113,3 +312,15 @@ ok      go-benchpress/m/v2/cmd/examples/csvparser       25.236s
 	return file
 }
 
+// ===== fakeErrorLogger =====
+
+type fakeErrorLogger struct {
+	called bool
+	msg    string
+}
+
+func (f *fakeErrorLogger) logError(format string, vars ...interface{}) {
+	f.called = true
+	f.msg = fmt.Sprintf(format, vars...)
+	panic("error logged")
+}

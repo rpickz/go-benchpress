@@ -40,8 +40,11 @@ the results of the benchmarks:
 gobenchpress -input output.txt
 ```
 
-You should now see a file named `output.svg` within that directory - open that file
-and you should see the sub-benchmarks laid out in a bar chart.
+You should now see files named as follows`output.svg` within that directory:
+1. `output_BenchmarkParseCSVLineFieldLength.svg`
+2. `output_BenchmarkParseCSVLineFields.svg`
+ 
+If you open those files you should see the sub-benchmarks laid out in bar charts.
 
 ## Streaming Benchmark Results to Go Benchpress
 
@@ -53,5 +56,40 @@ Assuming you have Go Benchpress installed, run the following at the terminal:
 go test -bench . | gobenchpress
 ```
 
-You should now see a file named `output.svg` within that directory - open that file
-and you should see the sub-benchmarks laid out in a bar chart.
+You should now see files named as follows`output.svg` within that directory:
+1. `output_BenchmarkParseCSVLineFieldLength.svg`
+2. `output_BenchmarkParseCSVLineFields.svg`
+ 
+If you open those files you should see the sub-benchmarks laid out in bar charts.
+
+## Using Other Formats
+
+Go Benchpress can output in different formats, other than bar charts.
+
+Go Benchpress can also output in `JSON` and `CSV` formats.
+
+### JSON
+
+To output in JSON format, use the `-renderType JSON` CLI switch, as follows:
+```bash
+go test -bench . | gobenchpress -renderType JSON
+```
+
+You should now see files named as follows within that directory:
+1. `output_BenchmarkParseCSVLineFieldLength.json`
+2. `output_BenchmarkParseCSVLineFields.json`
+
+An example of the JSON output can be found here: [Example JSON Output](./example_json_output.json).
+
+### CSV
+
+To output in CSV format, use the `-renderType CSV` CLI switch, as follows:
+```bash
+go test -bench . | gobenchpress -renderType CSV
+```
+
+You should now see files named as follows within that directory:
+1. `output_BenchmarkParseCSVLineFieldLength.csv`
+2. `output_BenchmarkParseCSVLineFields.csv`
+
+An example of the CSV output can be found here: [Example CSV Output](./example_csv_output.csv).
