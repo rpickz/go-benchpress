@@ -7,47 +7,18 @@ import (
 	"io"
 )
 
-type RasterRenderType int
-
-const (
-	PNG RasterRenderType = iota
-	SVG
-)
-
-func (r RasterRenderType) String() string {
-	switch r {
-	case PNG:
-		return "PNG"
-	case SVG:
-		return "SVG"
-	default:
-		return fmt.Sprintf("Unknown (%d)", r)
-	}
-}
-
-func RasterRenderTypeFromString(str string) (RasterRenderType, error) {
-	switch str {
-	case "PNG":
-		return PNG, nil
-	case "SVG":
-		return SVG, nil
-	default:
-		return -1, fmt.Errorf("raster render type %q not supported: %w", str, ErrUnknownRasterRenderType)
-	}
-}
-
 // RasterRenderer outputs a raster graphic based representation of the benchmarks, compared against one another.
 type RasterRenderer struct {
-	Title string
-	Height int
-	BarWidth int
-	RenderType RasterRenderType
+	Title      string
+	Height     int
+	BarWidth   int
+	RenderType RenderType
 
 	// barChartRenderFunc is used to isolate unit testing - in non-testing usage, points to `renderGraphicalBarChart`.
 	barChartRenderFunc barChartBenchmarkRenderer
 }
 
-func NewRasterRenderer(title string, renderType RasterRenderType) *RasterRenderer {
+func NewRasterRenderer(title string, renderType RenderType) *RasterRenderer {
 	return &RasterRenderer{
 		Title:    title,
 		Height:   512,
@@ -80,7 +51,7 @@ func (r *RasterRenderer) Render(writer io.Writer, parentBenchmark string, render
 	case SVG:
 		renderer = chart.SVG
 	default:
-		return fmt.Errorf("render type %q not supported: %w", r.RenderType, ErrUnknownRasterRenderType)
+		return fmt.Errorf("render type %q not supported: %w", r.RenderType, ErrUnknownRenderType)
 	}
 
 	return graph.Render(renderer, writer)

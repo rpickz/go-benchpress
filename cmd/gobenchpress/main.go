@@ -49,7 +49,7 @@ func writeBenchmarks(name string, benchmarks []parse.Benchmark, dimension go_ben
 
 	outputName := strings.ReplaceAll(outputFilename, "{}", name)
 
-	renderType, err := go_benchpress.RasterRenderTypeFromString(*renderType)
+	renderType, err := go_benchpress.RenderTypeFromString(*renderType)
 	if err != nil {
 		log.Fatalf("Could not determine valid render type - error: %v", err)
 	}

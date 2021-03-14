@@ -36,7 +36,7 @@ func TestPNGOutput(t *testing.T) {
 	file := setupOutputFile(t)
 	defer file.Close()
 
-	setupRasterRenderType(go_benchpress.PNG)
+	setupRenderType(go_benchpress.PNG)
 
 	// Call program entry point.
 	main()
@@ -53,7 +53,7 @@ func TestPNGOutput(t *testing.T) {
 	}
 }
 
-func setupRasterRenderType(t go_benchpress.RasterRenderType) {
+func setupRenderType(t go_benchpress.RenderType) {
 	render := new(string)
 	*render = t.String()
 	renderType = render

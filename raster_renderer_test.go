@@ -9,77 +9,6 @@ import (
 	"testing"
 )
 
-func TestRasterRenderType_String(t *testing.T) {
-	tests := []struct {
-		name  string
-		input RasterRenderType
-		want  string
-	}{
-		{
-			name:  "png",
-			input: PNG,
-			want:  "PNG",
-		},
-		{
-			name:  "svg",
-			input: SVG,
-			want:  "SVG",
-		},
-		{
-			name:  "svg",
-			input: RasterRenderType(1000),
-			want:  "Unknown (1000)",
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			got := test.input.String()
-			if test.want != got {
-				t.Errorf("want %q, got %q", test.want, got)
-			}
-		})
-	}
-}
-
-func TestRasterRenderTypeFromString(t *testing.T) {
-	tests := []struct {
-		name    string
-		input   string
-		want    RasterRenderType
-		wantErr error
-	}{
-		{
-			name:  "png",
-			input: "PNG",
-			want:  PNG,
-		},
-		{
-			name:  "svg",
-			input: "SVG",
-			want:  SVG,
-		},
-		{
-			name:    "unknown",
-			input:   "abc123",
-			want:    RasterRenderType(-1),
-			wantErr: ErrUnknownRasterRenderType,
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			got, err := RasterRenderTypeFromString(test.input)
-			if err != nil {
-				if !errors.Is(err, test.wantErr) {
-					t.Errorf("Want error '%v', got error '%v'", test.wantErr, err)
-				}
-			}
-			if test.want != got {
-				t.Errorf("want %q, got %q", test.want, got)
-			}
-		})
-	}
-}
-
 // ===== RasterRenderer tests =====
 
 func TestRasterRenderer_Render(t *testing.T) {
@@ -95,7 +24,7 @@ func TestRasterRenderer_Render(t *testing.T) {
 	tests := []struct {
 		name       string
 		benchmarks []parse.Benchmark
-		renderType RasterRenderType
+		renderType RenderType
 		dimension  RenderDimension
 
 		rendererTitle string
@@ -160,8 +89,8 @@ func TestRasterRenderer_Render(t *testing.T) {
 			name:                 "unknown render type",
 			rendererTitle:        "RasterRendererTitle",
 			benchmarks:           []parse.Benchmark{benchmark},
-			renderType:           RasterRenderType(100),
-			wantError:            ErrUnknownRasterRenderType,
+			renderType:           RenderType(100),
+			wantError:            ErrUnknownRenderType,
 			wantRenderCalled:     true,
 			wantRenderTitle:      "RasterRendererTitle",
 			wantRenderHeight:     512,
@@ -173,8 +102,8 @@ func TestRasterRenderer_Render(t *testing.T) {
 			rendererTitle:        "RasterRendererTitle",
 			benchmarks:           []parse.Benchmark{benchmark},
 			dimension:            RenderBytesPerOp,
-			renderType:           RasterRenderType(100),
-			wantError:            ErrUnknownRasterRenderType,
+			renderType:           RenderType(100),
+			wantError:            ErrUnknownRenderType,
 			wantRenderCalled:     true,
 			wantRenderTitle:      "RasterRendererTitle",
 			wantRenderHeight:     512,
@@ -187,8 +116,8 @@ func TestRasterRenderer_Render(t *testing.T) {
 			rendererTitle:        "RasterRendererTitle",
 			benchmarks:           []parse.Benchmark{benchmark},
 			dimension:            RenderAllocsPerOp,
-			renderType:           RasterRenderType(100),
-			wantError:            ErrUnknownRasterRenderType,
+			renderType:           RenderType(100),
+			wantError:            ErrUnknownRenderType,
 			wantRenderCalled:     true,
 			wantRenderTitle:      "RasterRendererTitle",
 			wantRenderHeight:     512,
