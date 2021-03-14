@@ -59,15 +59,11 @@ func renderGraphicalBarChart(title string, height int, barWidth int, dimension R
 func renderBarChart(title string, height, barWidth int, dimension RenderDimension, values []chart.Value) *chart.BarChart {
 	return &chart.BarChart{
 		Title:      title,
-		TitleStyle: chart.Style{Show: true},
-		XAxis: chart.Style{
-			Show: true,
-		},
+		TitleStyle: chart.StyleShow(),
+		XAxis: chart.StyleShow(),
 		YAxis: chart.YAxis{
 			Name: dimension.String(),
-			Style: chart.Style{
-				Show: true,
-			},
+			Style: chart.StyleShow(),
 		},
 		Background: chart.Style{
 			Padding: chart.Box{
