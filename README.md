@@ -1,3 +1,5 @@
+![Go Benchpress Logo](./logo.svg)
+
 # Go Benchpress
 [![codecov](https://codecov.io/gh/rpickz/go-benchpress/branch/main/graph/badge.svg?token=D3097TFF89)](https://codecov.io/gh/rpickz/go-benchpress)
 
