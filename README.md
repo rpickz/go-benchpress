@@ -1,6 +1,7 @@
 ![Go Benchpress Logo](./logo.svg)
 
 # Go Benchpress
+<a href="https://pkg.go.dev/github.com/rpickz/go-benchpress"><img src="https://img.shields.io/badge/api-reference-blue.svg?style=flat-square" alt="GoDoc"></a>
 [![codecov](https://codecov.io/gh/rpickz/go-benchpress/branch/main/graph/badge.svg?token=D3097TFF89)](https://codecov.io/gh/rpickz/go-benchpress)
 
 Go Benchpress is a visualisation utility for comparing the results of benchmarks.
@@ -23,7 +24,7 @@ A second mode of operation exists - 'no separation'.  This is where the results 
 are output into a single file.
 
 You will find more information on the specifics of this in the [CSV Parser](./examples/csvparser) package - the README
-contains details instructions on CLI usage, and how to make use of these different modes.
+contains detailed instructions on CLI usage, and how to make use of these different modes.
 
 So, given Go Benchpress will either output a file for each benchmark, or a single file for all benchmarks, what formats
 are available?
