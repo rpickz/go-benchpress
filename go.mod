@@ -1,6 +1,6 @@
 module github.com/rpickz/go-benchpress
 
-go 1.16
+go 1.24
 
 require (
 	github.com/blend/go-sdk v1.20210309.4 // indirect
