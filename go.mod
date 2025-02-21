@@ -2,6 +2,7 @@ module github.com/rpickz/go-benchpress
 
 go 1.24
 
+
 require (
 	github.com/blend/go-sdk v1.20210309.4 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
